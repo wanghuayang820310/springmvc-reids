@@ -38,6 +38,7 @@ public class UserAction {
     Logger loger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     //http://localhost:8080//hello/test
+
     //http://localhost:8080//hello/test1
     //http://localhost:8080//hello/test2
 //    @RequestMapping("/test")
