@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                        http://www.springframework.org/schema/cache
+                        http://www.springframework.org/schema/cache/spring-cache.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <!--reis 2.0.5
+        -->
+
+    <!--由spring-mybatis统一引入 引入配置文件-->
+    <context:property-placeholder location="classpath:db/jdbc.properties" ignore-unresolvable="true"/>
+    <!-- 单个redis配置 -->
+    <!-- redis连接池的配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="maxTotal" value="${redis.maxActive}"/>
+        <property name="maxWaitMillis" value="${redis.maxWait}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${redis.timeout}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+        <property name="testOnReturn" value="${redis.testOnReturn}"/>
+    </bean>
+
+    <!-- redis的连接池pool-->
+    <!-- <bean id = "jedisPool" class="redis.clients.jedis.JedisPool">
+      <constructor-arg index="0" ref="jedisPoolConfig"/>
+      <constructor-arg index="1" value="${redis.host}"/>
+      <constructor-arg index="2" value="${redis.port}" type="int"/> port
+    </bean> -->
+
+    <!-- 以下是spring-data-redis配置方式 -->
+    <bean id="jedisConnFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}" p:port="${redis.port}" p:use-pool="true" p:pool-config-ref="jedisPoolConfig"/>
+
+    <!--  SDR默认采用的序列化策略有两种，一种是String的序列化策略，一种是JDK的序列化策略。
+        StringRedisTemplate默认采用的是String的序列化策略，保存的key和value都是采用此策略序列化保存的。
+        RedisTemplate默认采用的是JDK的序列化策略，保存的key和value都是采用此策略序列化保存的。
+        就是因为序列化策略的不同，即使是同一个key用不同的Template去序列化，结果是不同的。所以根据key去删除数据的时候就出现了删除失败的问题。
+     -->
+    <!-- redis 序列化策略 ，通常情况下key值采用String序列化策略， -->
+    <!-- 如果不指定序列化策略，StringRedisTemplate的key和value都将采用String序列化策略； -->
+    <!-- 但是RedisTemplate的key和value都将采用JDK序列化 这样就会出现采用不同template保存的数据不能用同一个template删除的问题 -->
+    <bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+    <property name="connectionFactory" ref="jedisConnFactory"/>
+    <property name="keySerializer" ref="stringRedisSerializer"/>
+    <property name="hashKeySerializer" ref="stringRedisSerializer"/>
+    <property name="valueSerializer" ref="stringRedisSerializer"/>
+    </bean>
+    <bean name="genericObjectPoolConfig" class="org.apache.commons.pool2.impl.GenericObjectPoolConfig">
+        <property name="maxWaitMillis" value="-1" />
+        <property name="maxTotal" value="1000" />
+        <property name="minIdle" value="8" />
+        <property name="maxIdle" value="100" />
+    </bean>
+    <!-- 单个redis配置结束 -->
+    <!--集群redis配置开始 -->
+    <bean id="jedisClusterFactory" class="com.why.cluster.JedisClusterFactory">
+        <!--        <property name="addressConfig">-->
+        <!--            <value>classpath:db/rediscluster.properties</value>-->
+        <!--            <value>/conf/rediscluster.properties</value>-->
+        <!--        </property>-->
+        <property name="address" value="${redis.clusterNodes}" />
+        <!--        <property name="addressKeyPrefix" value="address" />  &lt;!&ndash; 属性文件里 key的前缀 &ndash;&gt;-->
+        <property name="timeout" value="300000" />
+        <property name="maxRedirections" value="6" />
+        <property name="genericObjectPoolConfig" ref="genericObjectPoolConfig" />
+    </bean>
+    <!--集群redis配置结束 -->
+</beans>

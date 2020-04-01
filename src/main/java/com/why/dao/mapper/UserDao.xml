@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.why.dao.UserDao" >
+
+
+    <resultMap id="resultMap" type="com.why.pojo.User">
+        <result property="userid" column="userid"></result>
+        <result property="userName" column="user_name"></result>
+        <result property="password" column="password"></result>
+        <result property="age" column="age"></result>
+        <result property="udate" column="udate"></result>
+        <result property="height" column="height"></result>
+    </resultMap>
+
+    <insert id="add" parameterType="com.why.pojo.User">
+        insert into user1(
+        <trim suffixOverrides=",">
+        <if test="userid != null">
+                userid,
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name,
+            </if>
+            <if test="password != null and password != ''">
+                password,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="udate != null">
+                udate,
+            </if>
+        </trim>
+        ) values (
+        <trim suffixOverrides=",">
+        <if test="userid != null">
+                #{userid},
+            </if>
+            <if test="userName != null and userName != ''">
+                #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                #{password},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="height != null">
+                #{height},
+            </if>
+            <if test="udate != null">
+                #{udate},
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <delete id="delete" parameterType="integer">
+        delete from user1
+        where userid=#{userid}
+    </delete>
+
+    <update id="update" parameterType="com.why.pojo.User">
+        update user1
+        <set >
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="udate != null">
+                udate = #{udate},
+            </if>
+        </set>
+        where userid = #{userid}
+    </update>
+
+    <select id="get" parameterType="com.why.pojo.User" resultMap="resultMap">
+        select * from user1
+        where 1=1
+        <if test="userName != null and userName != ''">
+            and user_name = #{userName}
+        </if>
+        <if test="password != null and password != ''">
+            and password = #{password}
+        </if>
+        <if test="age != null">
+            and age = #{age}
+        </if>
+        <if test="height != null">
+            and height = #{height}
+        </if>
+        <if test="date != null">
+            and udate = #{date}
+        </if>
+    </select>
+ <select id="getall" parameterType="com.why.pojo.User" resultMap="resultMap">
+        select * from user1 
+    </select>
+        <!-- 定义存储过程 -->
+    <select id="callGetInvoice" parameterType="map" statementType="CALLABLE" >
+      {
+			  <!--     
+			    CREATE OR REPLACE Procedure JAVA_GETINVOICE
+			(
+			  vmkt  In Varchar2,
+			  vsyjh In Varchar2,  收银机号
+			  vjzrq In Varchar2, 记账日期
+			
+			  retcode Out Int,  返回值
+			  retmsg  Out Varchar,  返回信息
+			  rfphm   Out Int,  当前最大小票号
+			  rbs     Out Int,  今天已送网的交易数
+			  rje     Out Number  今天已送网的交易金额P匹配
+			) 
+			   -->
+         call JAVA_GETINVOICE(
+               #{p1,mode=IN,jdbcType=VARCHAR},
+               #{p2,mode=IN,jdbcType=VARCHAR},
+               #{p3,mode=IN,jdbcType=VARCHAR},
+               #{p4,mode=OUT,jdbcType=INTEGER},
+               #{p5,mode=OUT,jdbcType=VARCHAR},
+               #{p6,mode=OUT,jdbcType=INTEGER},
+               #{p7,mode=OUT,jdbcType=INTEGER},
+               #{p8,mode=OUT,jdbcType=FLOAT}
+         )
+      }
+  </select>
+  <!-- 定义函数 -->
+  <select id="callGetGhid" parameterType="map" statementType="CALLABLE">
+          {
+          <!-- CREATE OR REPLACE FUNCTION fGetGhid(IN_GH in varchar2,IN_MKT in varchar2) RETURN VARCHAR2   -->
+              #{p3,mode=OUT,jdbcType=VARCHAR}=call fGetGhid(
+                  #{p1,mode=IN,jdbcType=VARCHAR},
+               #{p2,mode=IN,jdbcType=VARCHAR}
+              )
+          }
+  </select>
+</mapper>
