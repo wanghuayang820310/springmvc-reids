@@ -32,7 +32,7 @@
         <aspectjweaver.version>1.9.1</aspectjweaver.version>
         <!--oracle数据库连接驱动 -->
         <oracle.version>11.2.0.3</oracle.version>
-        <jackson.version>2.9.5</jackson.version>
+        <jackson.version>2.11.0</jackson.version>
         <!--lombok插件 -->
         <lombok.version>1.16.20</lombok.version>
         <!-- 1.18.1 -->
