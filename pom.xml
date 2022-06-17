@@ -37,7 +37,7 @@
         <lombok.version>1.16.20</lombok.version>
         <!-- 1.18.1 -->
         <jersey.version>2.27</jersey.version>
-        <fastjson.version>1.2.39</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <redis.version>2.9.3</redis.version>
         <!--        <spring.redis.version>1.8.23.RELEASE</spring.redis.version>-->
         <spring.redis.version>2.0.5.RELEASE</spring.redis.version>
